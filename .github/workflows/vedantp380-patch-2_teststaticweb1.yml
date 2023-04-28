@@ -56,4 +56,4 @@ jobs:
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_9FE904466E3F4C1AB029721857E6121D }}
           package: .
         env: |
-          CI: false  
+          CI: 'false'  
