@@ -6,7 +6,7 @@ name: Build and deploy Node.js app to Azure Web App - teststaticweb1
 on:
   push:
     branches:
-      - master
+      - Vedantp380-patch-2
   workflow_dispatch:
 
 jobs:
@@ -22,16 +22,15 @@ jobs:
           node-version: '18.x'
 
       - name: npm install, build, and test
+        
         run: |
           npm install
           npm run build --if-present
-          npm start
           npm run test --if-present
           
-          
         env:
-            CI: false
-
+          CI: false
+          
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
         with:
@@ -57,9 +56,6 @@ jobs:
         with:
           app-name: 'teststaticweb1'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E8F231BF5E8845C1AF8255C6DF1364FF }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_9FE904466E3F4C1AB029721857E6121D }}
           package: .
-          
-        env:
-           CI: false  
-        
+     
