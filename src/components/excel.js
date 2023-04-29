@@ -4,7 +4,6 @@ import *  as XLSX from 'xlsx';
 export default function ExcelReader() {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [sheets, setSheets] = useState([]);
-  const [headers, setHeaders] = useState([]);
   const [selectedSheets, setSelectedSheets] = useState({});
   const [selectedHeaders, setSelectedHeaders] = useState({});
 
@@ -85,7 +84,7 @@ export default function ExcelReader() {
   };
   
   
-console.log("selected",sheets)
+
 
 const handleSubmit = (event) => {
     event.preventDefault();
@@ -103,8 +102,8 @@ const handleSubmit = (event) => {
 
 
   return (
-    <div style={{ "text-align":"center", "backgroundColor": "white"}}>
-    <h1 className="ui header" style={{ "text-align":"center", "backgroundColor": "white"}}>UPLOAD FILES HERE</h1>
+    <div style={{ textAlign:"center", backgroundColor: "white"}}>
+    <h1 className="ui header" style={{ textAlign:"center", backgroundColor: "white"}}>UPLOAD FILES HERE</h1>
     <input type="file" multiple onChange={handleFileChange} />
     <button onClick={handleFileUpload}>Upload Files</button>
     <br />
@@ -124,7 +123,7 @@ const handleSubmit = (event) => {
                     onChange={(event) => handleSheetSelect(event, file.name)}
                   />
                   <label>{sheetName}</label>
-  {/* <h4>{sheetName}</h4> */}
+
   {sheet.selected && (
     <div style={{display: "flex", justifyContent: "center"}}>
       <table style={{borderCollapse: "collapse", border: "1px solid gray"}}>
