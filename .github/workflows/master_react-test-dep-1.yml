@@ -62,4 +62,4 @@ jobs:
           app-name: 'react-test-dep-1'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_0A34E2A9DF014153B492DDC4D7EBD23A }}
-          package: .
+          package: release.zip
