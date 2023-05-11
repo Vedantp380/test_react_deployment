@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import *  as XLSX from 'xlsx';
+import { BlobServiceClient } from "@azure/storage-blob";
+
 
 export default function ExcelReader() {
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -39,8 +41,26 @@ export default function ExcelReader() {
     });
   };
 
+  const handleFileUploadtoBlob = async (file) => {
+    
+    const storageaccountname = 'dataq1059';
+    const sastoken = '?sv=2022-11-02&ss=b&srt=sco&sp=rwdlaciytfx&se=2023-05-30T16:38:18Z&st=2023-05-08T08:38:18Z&spr=https&sig=j%2FCPBJz9QhADw%2F%2FKD9kA6aPID2DOkJGLh%2BLB1Aib3lQ%3D';
+    const blobServiceClient = new BlobServiceClient(`https://${storageaccountname}.blob.core.windows.net/?${sastoken}`);
+    const containerClient = blobServiceClient.getContainerClient('test');
+    const blockBlobClient = containerClient.getBlockBlobClient(file.name);
+    console.log("blob",blockBlobClient)
+    
+    await blockBlobClient.uploadBrowserData(file);
+    
+    console.log(`File "${file.name}" has been uploaded to blob storage`);
+  }
+
+
+
   const handleFileUpload = () => {
     const data = {};
+    console.log("ss",selectedFiles)
+    handleFileUploadtoBlob(selectedFiles[0])
     const sheetPromises = selectedFiles.map((file) => {
       return new Promise((resolve) => {
         const reader = new FileReader();
@@ -74,6 +94,10 @@ export default function ExcelReader() {
       });
     });
   
+
+
+
+
     Promise.all(sheetPromises).then(() => {
       const newSheets = {};
       Object.keys(data).forEach((fileName) => {
