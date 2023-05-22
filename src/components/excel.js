@@ -8,6 +8,7 @@ export default function ExcelReader() {
   const [sheets, setSheets] = useState([]);
   const [selectedSheets, setSelectedSheets] = useState({});
   const [selectedHeaders, setSelectedHeaders] = useState({});
+  const [uploadState, setUploadState] = useState("");
 
   const handleFileChange = (event) => {
     const { files } = event.target;
@@ -53,6 +54,7 @@ export default function ExcelReader() {
     await blockBlobClient.uploadBrowserData(file);
     
     console.log(`File "${file.name}" has been uploaded to blob storage`);
+    setUploadState("done")
   }
 
 
@@ -112,18 +114,34 @@ export default function ExcelReader() {
 
 const handleSubmit = (event) => {
     event.preventDefault();
-    
+    console.log("sheets",sheets)
     // Make the AJAX call to the API endpoint
-    fetch('http://localhost:5000/submit', {
+    fetch('http://localhost:5000/api/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(sheets)
+      // body: sheets,
+      // mode: 'no-cors'
     })
     .then(response => response.json())
     .then(data => console.log(data))
     .catch(error => console.error(error));
   };
-
+  const viewProperties = (event) => {
+    event.preventDefault();
+    console.log("sheets",JSON.stringify(sheets))
+    // Make the AJAX call to the API endpoint
+    fetch('http://localhost:5000/api/viewproperties', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(sheets),
+      // body: sheets,
+      mode: 'no-cors'
+    })
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.error(error));
+  };
 
   return (
     <div style={{ textAlign:"center", backgroundColor: "white"}}>
@@ -146,15 +164,26 @@ const handleSubmit = (event) => {
                     checked={selectedSheets[file.name]?.[sheetName] || false}
                     onChange={(event) => handleSheetSelect(event, file.name)}
                   />
-                  <label>{sheetName}</label>
+                 {uploadState == "done" ? (
+                  <>
+                      <label>{sheetName}</label>
+                      <button onClick={viewProperties}>
+                        View Properties
+                      </button>
+
+                    </>   
+                     ) : (
+                     <p>Please upload a file.</p>
+                         )}
+                    
 
   {sheet.selected && (
     <div style={{display: "flex", justifyContent: "center"}}>
       <table style={{borderCollapse: "collapse", border: "1px solid gray"}}>
         <thead>
           <tr>
-            <th style={{border: "1px solid gray", padding: "5px"}}>Header Name</th>
-            <th style={{border: "1px solid gray", padding: "5px"}}>Select</th>
+            {/* <th style={{border: "1px solid gray", padding: "5px"}}>Header Name</th> */}
+            {/* <th style={{border: "1px solid gray", padding: "5px"}}>Select</th> */}
           </tr>
         </thead>
         <tbody>
@@ -162,17 +191,18 @@ const handleSubmit = (event) => {
             const headerSelected =
               selectedHeaders[file.name]?.[sheetName]?.[headerName] || false;
             return (
-              <tr key={headerName}>
-                <td style={{border: "1px solid gray", padding: "5px"}}>{headerName}</td>
-                <td style={{border: "1px solid gray", padding: "5px"}}>
-                  <input
-                    type="checkbox"
-                    name={headerName}
-                    checked={headerSelected}
-                    onChange={(event) => handleHeaderSelect(event, file.name, sheetName)}
-                  />
-                </td>
-              </tr>
+              <></>
+              // <tr key={headerName}>
+              //   <td style={{border: "1px solid gray", padding: "5px"}}>{headerName}</td>
+              //   <td style={{border: "1px solid gray", padding: "5px"}}>
+              //     <input
+              //       type="checkbox"
+              //       name={headerName}
+              //       checked={headerSelected}
+              //       onChange={(event) => handleHeaderSelect(event, file.name, sheetName)}
+              //     />
+              //   </td>
+              // </tr>
             );
           })}
         </tbody>
