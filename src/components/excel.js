@@ -9,6 +9,89 @@ export default function ExcelReader() {
   const [selectedSheets, setSelectedSheets] = useState({});
   const [selectedHeaders, setSelectedHeaders] = useState({});
   const [uploadState, setUploadState] = useState("");
+  const [tableresponse, setTableResponse] = useState('')
+
+  const data = {
+    "col1":{
+        "min": "abc",
+        "max": "bcd",
+        "data_type": "object",
+        "xyz": ["ax","bc","dc"]
+    },
+    "col2":{
+        "min": "abc",
+        "max": "bcd",
+        "data_type": "object",
+        "xyz": ["ax","bc","dc"]
+    },
+     "col3":{
+        "min": "abc",
+        "max": "bcd",
+        "data_type": "object",
+        "xyz": ["ax","bc","dc"]
+    },
+     "col4":{
+        "min": "abc",
+        "max": "bcd",
+        "data_type": "object",
+        "xyz": ["ax","bc","dc"]
+    }
+}
+
+
+
+
+
+
+const MyTable = ({ data }) => {
+  const columns = Object.keys(data);
+
+  return (
+    <div className="table-container">
+      <table className="my-table">
+        <thead>
+          <tr>
+            <th>Column Name</th>
+            <th>Min</th>
+            <th>Max</th>
+            <th>Data Type</th>
+            <th>Categories</th>
+            <th>25th Percentile</th>
+            <th>50th Percentile</th>
+            <th>75th Percentile</th>
+            <th>Mode</th>
+          </tr>
+        </thead>
+        <tbody>
+          {columns.map((column) => (
+            <tr key={column}>
+              <td>{column}</td>
+              <td>{data[column]["Minimum Value"]}</td>
+              <td>{data[column]["Maximum Value"]}</td>
+              <td>{data[column]["Data Type"]}</td>
+              <td>
+                {Array.isArray(data[column]["Categories"])
+                  ? data[column]["Categories"].join(", ")
+                  : data[column]["Categories"]}
+              </td>
+              <td>{data[column]["25th Percentile"]}</td>
+              <td>{data[column]["50th Percentile"]}</td>
+              <td>{data[column]["75th Percentile"]}</td>
+              <td>{data[column]["Mode"]}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+
+
+
+
+
+
 
   const handleFileChange = (event) => {
     const { files } = event.target;
@@ -112,37 +195,39 @@ export default function ExcelReader() {
   
 
 
-const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log("sheets",sheets)
-    // Make the AJAX call to the API endpoint
-    fetch('http://localhost:5000/api/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(sheets)
-      // body: sheets,
-      // mode: 'no-cors'
-    })
-    .then(response => response.json())
-    .then(data => console.log(data))
-    .catch(error => console.error(error));
+// const handleSubmit = (event) => {
+//     event.preventDefault();
+//     console.log("sheets",sheets)
+//     // Make the AJAX call to the API endpoint
+//     fetch('http://localhost:5000/api/submit', {
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify(sheets)
+//       // body: sheets,
+//       // mode: 'no-cors'
+//     })
+//     .then(response => response.json())
+//     .then(data => console.log(data))
+//     .catch(error => console.error(error));
+//   };
+  const viewProperties = () => {
+    console.log(JSON.stringify(sheets))
+    fetch("http://localhost:5000/api/getFiles", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(sheets),
+  mode: 'cors'
+})
+  .then((response) => response.json())
+  .then((data) => {
+    setTableResponse(data[0])
+    console.log("Statistics:", tableresponse);
+  })
+  // .catch((error) => console.error(error));
   };
-  const viewProperties = (event) => {
-    event.preventDefault();
-    console.log("sheets",JSON.stringify(sheets))
-    // Make the AJAX call to the API endpoint
-    fetch('http://localhost:5000/api/viewproperties', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(sheets),
-      // body: sheets,
-      mode: 'no-cors'
-    })
-    .then(response => response.json())
-    .then(data => console.log(data))
-    .catch(error => console.error(error));
-  };
-
+  const isObjectNonEmpty = (obj) => {
+    return Object.keys(obj).length > 0;
+  }
   return (
     <div style={{ textAlign:"center", backgroundColor: "white"}}>
     <h1 className="ui header" style={{ textAlign:"center", backgroundColor: "white"}}>UPLOAD FILES HERE</h1>
@@ -171,12 +256,16 @@ const handleSubmit = (event) => {
                         View Properties
                       </button>
 
+                    {Object.keys(tableresponse).length > 0 &&  (
+                      <MyTable data={tableresponse}/>
+                    )
+                   } 
                     </>   
                      ) : (
                      <p>Please upload a file.</p>
                          )}
-                    
-
+                  
+                   
   {sheet.selected && (
     <div style={{display: "flex", justifyContent: "center"}}>
       <table style={{borderCollapse: "collapse", border: "1px solid gray"}}>
@@ -219,9 +308,9 @@ const handleSubmit = (event) => {
       );
     })}
     <div className='ui-footer' style={{paddingTop:"50px"}}>
-      <button onClick={handleSubmit}>
+      {/* <button onClick={handleSubmit}>
         Submit
-      </button>
+      </button> */}
     </div>
   </div>
   
