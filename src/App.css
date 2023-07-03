@@ -69,8 +69,24 @@
 .my-table tbody tr:hover {
   background-color: #e6e6e6;
 }
+.boxcol{
+  width: max-content;
+  height: max-content;
+  border: 2px solid black;
+  justify-content: center;
+  padding: 12px;
 
-
+  }
+.boxmea{
+  width: max-content;
+  height: max-content;
+  border: 2px solid black;
+  justify-content: center;
+  padding: 5px;
+}
+.divmeaandcol{
+  padding: 10px
+}
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

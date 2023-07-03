@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import *  as XLSX from 'xlsx';
 import { BlobServiceClient } from "@azure/storage-blob";
+import axios from 'axios';
+import Measure from "./mesasure" 
 
 
 export default function ExcelReader() {
@@ -9,84 +11,75 @@ export default function ExcelReader() {
   const [selectedSheets, setSelectedSheets] = useState({});
   const [selectedHeaders, setSelectedHeaders] = useState({});
   const [uploadState, setUploadState] = useState("");
-  const [tableresponse, setTableResponse] = useState('')
+  const [tableresponse, setTableResponse] = useState('');
+  const [selectedSheetsForMeasures, setSelectedSheetsForMeasures] = useState()
 
-  const data = {
-    "col1":{
-        "min": "abc",
-        "max": "bcd",
-        "data_type": "object",
-        "xyz": ["ax","bc","dc"]
-    },
-    "col2":{
-        "min": "abc",
-        "max": "bcd",
-        "data_type": "object",
-        "xyz": ["ax","bc","dc"]
-    },
-     "col3":{
-        "min": "abc",
-        "max": "bcd",
-        "data_type": "object",
-        "xyz": ["ax","bc","dc"]
-    },
-     "col4":{
-        "min": "abc",
-        "max": "bcd",
-        "data_type": "object",
-        "xyz": ["ax","bc","dc"]
-    }
+
+const xyz = {
+  "Salesforce Contract ID":{
+     "Data Type":"Text",
+     "Categories":"NA",
+     "Minimum Value":"NA",
+     "Median Value":"NA",
+     "Maximum Value":"NA"
+  },
+  "Record Type":{
+     "Data Type":"Text",
+     "Categories":[
+        {
+           "Environmental Contract Request"
+           :"25"
+        },
+        {
+           "zbc":
+           "56"
+        }
+     ],
+     "Minimum Value":"NA",
+     "Median Value":"NA",
+     "Maximum Value":"NA"
+  }
 }
 
-
-
-
-
-
 const MyTable = ({ data }) => {
-  const columns = Object.keys(data);
+  const renderTableRows = () => {
+    return Object.entries(data).map(([header, properties], index) => (
+      <React.Fragment key={index}>
+        <tr>
+          <th colSpan="2">{header}</th>
+        </tr>
+        {Object.entries(properties).map(([property, value], innerIndex) => {
+          if (value !== "NA") {
+            return (
+              <tr key={innerIndex}>
+                <td>{property}</td>
+                <td>{property === "Categories" ? renderCategoryList(value) : value}</td>
+              </tr>
+            );
+          }
+          return null;
+        })}
+      </React.Fragment>
+    ));
+  };
+
+  const renderCategoryList = (categories) => {
+    return categories.map((category, index) => {
+      const [categoryName, count] = Object.entries(category)[0];
+      return (
+        <div key={index}>
+          {categoryName}: {count}
+        </div>
+      );
+    });
+  };
 
   return (
-    <div className="table-container">
-      <table className="my-table">
-        <thead>
-          <tr>
-            <th>Column Name</th>
-            <th>Min</th>
-            <th>Max</th>
-            <th>Data Type</th>
-            <th>Categories</th>
-            <th>25th Percentile</th>
-            <th>50th Percentile</th>
-            <th>75th Percentile</th>
-            <th>Mode</th>
-          </tr>
-        </thead>
-        <tbody>
-          {columns.map((column) => (
-            <tr key={column}>
-              <td>{column}</td>
-              <td>{data[column]["Minimum Value"]}</td>
-              <td>{data[column]["Maximum Value"]}</td>
-              <td>{data[column]["Data Type"]}</td>
-              <td>
-                {Array.isArray(data[column]["Categories"])
-                  ? data[column]["Categories"].join(", ")
-                  : data[column]["Categories"]}
-              </td>
-              <td>{data[column]["25th Percentile"]}</td>
-              <td>{data[column]["50th Percentile"]}</td>
-              <td>{data[column]["75th Percentile"]}</td>
-              <td>{data[column]["Mode"]}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <table>
+      <tbody>{renderTableRows()}</tbody>
+    </table>
   );
 };
-
-
 
 
 
@@ -107,6 +100,7 @@ const MyTable = ({ data }) => {
         [name]: checked,
       },
     });
+    
   };
 
   const handleHeaderSelect = (event, fileName, sheetName) => {
@@ -123,6 +117,7 @@ const MyTable = ({ data }) => {
         },
       },
     });
+    // console.log("selehee",selectedHeaders)
   };
 
   const handleFileUploadtoBlob = async (file) => {
@@ -132,7 +127,7 @@ const MyTable = ({ data }) => {
     const blobServiceClient = new BlobServiceClient(`https://${storageaccountname}.blob.core.windows.net/?${sastoken}`);
     const containerClient = blobServiceClient.getContainerClient('test');
     const blockBlobClient = containerClient.getBlockBlobClient(file.name);
-    console.log("blob",blockBlobClient)
+    // console.log("blob",blockBlobClient)
     
     await blockBlobClient.uploadBrowserData(file);
     
@@ -144,8 +139,8 @@ const MyTable = ({ data }) => {
 
   const handleFileUpload = () => {
     const data = {};
-    console.log("ss",selectedFiles)
-    handleFileUploadtoBlob(selectedFiles[0])
+    // console.log("ss",selectedFiles)
+    // handleFileUploadtoBlob(selectedFiles[0])
     const sheetPromises = selectedFiles.map((file) => {
       return new Promise((resolve) => {
         const reader = new FileReader();
@@ -172,11 +167,15 @@ const MyTable = ({ data }) => {
               selected: selectedSheets[file.name]?.[sheetName] || false,
             };
           });
+    
           data[file.name] = sheets;
+          setSelectedSheetsForMeasures(data)
+          // console.log("sheets",data)
           resolve();
         };
         reader.readAsBinaryString(file);
       });
+
     });
   
 
@@ -190,6 +189,8 @@ const MyTable = ({ data }) => {
       });
       setSheets(newSheets);
     });
+    
+    // console.log("ele", selectedSheets)
   };
   
   
@@ -210,32 +211,54 @@ const MyTable = ({ data }) => {
 //     .then(data => console.log(data))
 //     .catch(error => console.error(error));
 //   };
-  const viewProperties = () => {
-    console.log(JSON.stringify(sheets))
-    fetch("http://localhost:5000/api/getFiles", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(sheets),
-  mode: 'cors'
-})
-  .then((response) => response.json())
-  .then((data) => {
-    setTableResponse(data[0])
-    console.log("Statistics:", tableresponse);
+//   const viewProperties = () => {
+//     console.log(JSON.stringify(sheets))
+//     fetch("https://pyhtondq.azurewebsites.net/api/getFiles", {
+//   method: "POST",
+//   headers: { "Content-Type": "application/json" },
+//   body: JSON.stringify(sheets),
+//   mode: 'cors'
+// })
+//   .then((response) => response.json())
+//   .then((data) => {
+//     setTableResponse(data[0])
+//     console.log("Statistics:", tableresponse);
+//   })
+//   // .catch((error) => console.error(error));
+//   };
+ 
+const viewProperties = () => {
+  console.log(JSON.stringify(sheets));
+
+  // Make the API request with the API key
+  axios.post('https://pyhtondq.azurewebsites.net/api/getFiles', sheets, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer qwerty_12345',
+    },
   })
-  // .catch((error) => console.error(error));
-  };
-  const isObjectNonEmpty = (obj) => {
-    return Object.keys(obj).length > 0;
-  }
+    .then(response => {
+      setTableResponse(response.data[0]);
+      // console.log("Statistics:", tableresponse);
+    })
+    .catch(error => {
+      console.error(error);
+    });
+};
+
+
+
+
+
   return (
     <div style={{ textAlign:"center", backgroundColor: "white"}}>
     <h1 className="ui header" style={{ textAlign:"center", backgroundColor: "white"}}>UPLOAD FILES HERE</h1>
     <input type="file" multiple onChange={handleFileChange} />
-    <button onClick={handleFileUpload}>Upload Files</button>
+    <button onClick={handleFileUpload}>Select Sheets</button>
     <br />
     {selectedFiles.map((file) => {
       return (
+        <div>
         <div key={file.name}>
           <h3>{file.name}</h3>
           {sheets[file.name] ? (
@@ -249,8 +272,8 @@ const MyTable = ({ data }) => {
                     checked={selectedSheets[file.name]?.[sheetName] || false}
                     onChange={(event) => handleSheetSelect(event, file.name)}
                   />
-                 {uploadState == "done" ? (
-                  <>
+                 {/* {uploadState == "done" ? ( */}
+                  {/* <> */}
                       <label>{sheetName}</label>
                       <button onClick={viewProperties}>
                         View Properties
@@ -260,19 +283,21 @@ const MyTable = ({ data }) => {
                       <MyTable data={tableresponse}/>
                     )
                    } 
-                    </>   
+                    {/* </>   
                      ) : (
-                     <p>Please upload a file.</p>
-                         )}
-                  
+                     <p></p>
+                     
+                         )} */}
+                   {/* <MyTable data={xyz}/> */}
+
                    
   {sheet.selected && (
     <div style={{display: "flex", justifyContent: "center"}}>
       <table style={{borderCollapse: "collapse", border: "1px solid gray"}}>
         <thead>
           <tr>
-            {/* <th style={{border: "1px solid gray", padding: "5px"}}>Header Name</th> */}
-            {/* <th style={{border: "1px solid gray", padding: "5px"}}>Select</th> */}
+           <th style={{border: "1px solid gray", padding: "5px"}}>Header Name</th>  
+           <th style={{border: "1px solid gray", padding: "5px"}}>Select</th>  
           </tr>
         </thead>
         <tbody>
@@ -280,33 +305,42 @@ const MyTable = ({ data }) => {
             const headerSelected =
               selectedHeaders[file.name]?.[sheetName]?.[headerName] || false;
             return (
-              <></>
-              // <tr key={headerName}>
-              //   <td style={{border: "1px solid gray", padding: "5px"}}>{headerName}</td>
-              //   <td style={{border: "1px solid gray", padding: "5px"}}>
-              //     <input
-              //       type="checkbox"
-              //       name={headerName}
-              //       checked={headerSelected}
-              //       onChange={(event) => handleHeaderSelect(event, file.name, sheetName)}
-              //     />
-              //   </td>
-              // </tr>
+              // <></>
+              <tr key={headerName}>
+                <td style={{border: "1px solid gray", padding: "5px"}}>{headerName}</td>
+                <td style={{border: "1px solid gray", padding: "5px"}}>
+                  <input
+                    type="checkbox"
+                    name={headerName}
+                    checked={headerSelected}
+                    onChange={(event) => handleHeaderSelect(event, file.name, sheetName)}
+                  />
+                </td>
+              </tr>
             );
           })}
         </tbody>
       </table>
     </div>
   )}
+    
 </div>
-              );
+         );
             })
           ) : (
             <div>Loading sheets..</div>
           )}
         </div>
+
+    
+      </div>
       );
+
+
     })}
+
+
+      <Measure dataforCalculatingMeasure={selectedSheetsForMeasures}/>
     <div className='ui-footer' style={{paddingTop:"50px"}}>
       {/* <button onClick={handleSubmit}>
         Submit
