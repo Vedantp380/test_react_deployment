@@ -3,6 +3,8 @@ import *  as XLSX from 'xlsx';
 import { BlobServiceClient } from "@azure/storage-blob";
 import axios from 'axios';
 import Measure from "./mesasure" 
+import Form from "./ConditionalForm"
+
 
 
 export default function ExcelReader() {
@@ -13,7 +15,7 @@ export default function ExcelReader() {
   const [uploadState, setUploadState] = useState("");
   const [tableresponse, setTableResponse] = useState('');
   const [selectedSheetsForMeasures, setSelectedSheetsForMeasures] = useState()
-
+  const [jsonData, setJsonData] = useState()
 
 const xyz = {
   "Salesforce Contract ID":{
@@ -165,12 +167,18 @@ const MyTable = ({ data }) => {
             sheets[sheetName] = {
               headers,
               selected: selectedSheets[file.name]?.[sheetName] || false,
+              completeness: {},
+              uniqueness: {},
+              validity: {}
             };
           });
-    
+          
           data[file.name] = sheets;
+          
+          
+          console.log("sheets",selectedSheets)
           setSelectedSheetsForMeasures(data)
-          // console.log("sheets",data)
+          setJsonData(data)
           resolve();
         };
         reader.readAsBinaryString(file);
@@ -253,8 +261,9 @@ const viewProperties = () => {
   return (
     <div style={{ textAlign:"center", backgroundColor: "white"}}>
     <h1 className="ui header" style={{ textAlign:"center", backgroundColor: "white"}}>UPLOAD FILES HERE</h1>
-    <input type="file" multiple onChange={handleFileChange} />
-    <button onClick={handleFileUpload}>Select Sheets</button>
+    <input className= 'input' type="file" multiple onChange={handleFileChange} />
+    <button class="button-60" role="button" onClick={handleFileUpload}>Select Sheets</button>
+    {/* <button className='button-34'onClick={handleFileUpload}>Select Sheets</button> */}
     <br />
     {selectedFiles.map((file) => {
       return (
@@ -275,7 +284,7 @@ const viewProperties = () => {
                  {/* {uploadState == "done" ? ( */}
                   {/* <> */}
                       <label>{sheetName}</label>
-                      <button onClick={viewProperties}>
+                      <button className='button-60' onClick={viewProperties}>
                         View Properties
                       </button>
 
@@ -289,8 +298,9 @@ const viewProperties = () => {
                      
                          )} */}
                    {/* <MyTable data={xyz}/> */}
+ {/*------------------------------------------------------------------------- Header select code ------------------------------------------------------------------------------------------ */}
 
-                   
+{/*                    
   {sheet.selected && (
     <div style={{display: "flex", justifyContent: "center"}}>
       <table style={{borderCollapse: "collapse", border: "1px solid gray"}}>
@@ -322,7 +332,7 @@ const viewProperties = () => {
         </tbody>
       </table>
     </div>
-  )}
+  )} */}
     
 </div>
          );
@@ -339,8 +349,16 @@ const viewProperties = () => {
 
     })}
 
+    {selectedSheetsForMeasures && (
+        <Measure dataforCalculatingMeasure={selectedSheetsForMeasures}/>
+    )
 
-      <Measure dataforCalculatingMeasure={selectedSheetsForMeasures}/>
+    }
+      
+   
+      <Form jsonData={jsonData}/>
+    
+      
     <div className='ui-footer' style={{paddingTop:"50px"}}>
       {/* <button onClick={handleSubmit}>
         Submit
