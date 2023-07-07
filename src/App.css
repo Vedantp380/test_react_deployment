@@ -28,6 +28,136 @@
   color: #61dafb;
 }
 
+.table-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.my-table {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 600px;
+  border: 1px solid gray;
+}
+
+.my-table th,
+.my-table td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid gray;
+}
+
+.my-table th:first-child,
+.my-table td:first-child {
+  border-left: 1px solid gray;
+}
+
+.my-table th:last-child,
+.my-table td:last-child {
+  border-right: 1px solid gray;
+}
+
+.my-table th {
+  background-color: #f2f2f2;
+}
+
+.my-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.my-table tbody tr:hover {
+  background-color: #e6e6e6;
+}
+.boxcol{
+  width: 170px;
+  height: max-content;
+  border: 2px solid black;
+  justify-content: center;
+  align-items: center
+
+  }
+.boxmea{
+  width: 150px;
+  height: max-content;
+  border: 2px solid black;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+
+}
+.divmeaandcol{
+  padding: 5px;
+  align-items: center
+}.sheetnames{
+  font-size: 18px;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  justify-content: center;
+  align-items: center
+}.outerdivsheetandheader{
+  align-items: center;
+
+}.headersdiv{
+  padding-right: 25px;
+}.checked {
+  background-color: blue;
+  color: white;
+}.label-info{
+  font-style: italic;
+}
+
+/* CSS */
+.button-60 {
+  align-items: center;
+  appearance: none;
+  background-color: #fff;
+  border: 1px solid #dbdbdb;
+  border-radius: .375em;
+  box-shadow: none;
+  box-sizing: border-box;
+  color: #363636;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: BlinkMacSystemFont,-apple-system,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 1rem;
+  height: 2.0em;
+  justify-content: center;
+  line-height: 1.5;
+  padding: calc(.5em - 1px) 1em;
+  position: relative;
+  text-align: center;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.button-60:active {
+  border-color: #e2243e;
+  outline: 5;
+}
+
+.button-60:focus {
+  border-color: #234125;
+  outline: 0;
+}
+
+.button-60:hover {
+  border-color: #b5b5b5;
+}
+
+.button-60:focus:not(:active) {
+  box-shadow: rgba(72, 95, 199, .25) 0 0 0 .125em;
+}.input[type=file] {
+  width: 350px;
+  max-width: 100%;
+  color: #444;
+  padding: 5px;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #555;
+}
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
